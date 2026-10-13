@@ -5,12 +5,12 @@ android {
     namespace 'ua.lehko.ai'
     compileSdk 35
     defaultConfig {
-        // Test package is separate: never overwrite an already-installed signed v1.2 APK.
-        applicationId 'ua.lehko.ai.preview'
+        // Beta uses a distinct package ID to avoid conflicts with previously signed preview builds.
+        applicationId 'ua.lehko.ai.beta'
         minSdk 26
         targetSdk 35
-        versionCode 15
-        versionName '1.5-preview'
+        versionCode 16
+        versionName '1.6-beta'
     }
     buildTypes {
         release {
