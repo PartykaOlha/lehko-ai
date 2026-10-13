@@ -6,7 +6,7 @@ android {
     compileSdk 35
     defaultConfig {
         // Beta uses a distinct package ID to avoid conflicts with previously signed preview builds.
-        applicationId 'ua.lehko.ai.beta'
+        applicationId 'ua.lehko.ai.stable'
         minSdk 26
         targetSdk 35
         versionCode 17
