@@ -31,7 +31,7 @@ The browser version offers ChatGPT shortcut/copy and a separate optional API-key
 
 GitHub Actions workflow [Build Android preview APK](.github/workflows/build-android.yml) builds a **debug APK** on each code change. Open GitHub Actions → latest successful run → download the `lehko-ai-preview-debug-apk` artifact. Extract the ZIP on Android, then install the APK.
 
-The current beta has Android package `ua.lehko.ai.beta`, distinct from the older `ua.lehko.ai` release and the early `ua.lehko.ai.preview` builds. It installs **beside** those packages. Beta 1.7 upgrades Beta 1.6 only if both APKs are signed with the same key. Existing local diary data from different package IDs are not automatically migrated; export/import backup if needed.
+The new 1.7 app uses Android package `ua.lehko.ai.stable` with a privately retained signing key. It installs **beside** the older `ua.lehko.ai`, `ua.lehko.ai.preview`, and `ua.lehko.ai.beta` apps. Beta 1.6 used a GitHub runner's transient debug certificate, so it cannot be upgraded using another signing key. Export a backup from Beta 1.6 and import it into 1.7 to preserve the diary. Do not commit the signing key, passwords, weight history, or private photos.
 
 Do not distribute a release APK until its native sign-in, token refresh, photo analysis, data handling, and signing are tested. Never commit signing keys or OAuth tokens.
 
