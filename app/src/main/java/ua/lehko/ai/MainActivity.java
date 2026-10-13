@@ -66,7 +66,7 @@ public final class MainActivity extends Activity {
             private boolean route(String url) {
                 if (url.startsWith("file:///android_asset/")) return false;
                 if (url.startsWith("https://")) {
-                    try {startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));}
+                    try { openInBrowser(url); }
                     catch (Exception ignored) {}
                 }
                 return true;
@@ -81,7 +81,7 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void connect() {
             background.execute(() -> {
                 try { auth.signIn(url -> runOnUiThread(() -> {
-                    try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); }
+                    try { openInBrowser(url); }
                     catch (Exception ex) { notifyStatus(); }
                 })); }
                 catch (Exception ignored) { /* Report no token and stay disconnected. */ }
@@ -103,6 +103,17 @@ public final class MainActivity extends Activity {
                     sendResult(id, false, e.getMessage() == null ? "Не вдається виконати запит." : e.getMessage());
                 }
             });
+        }
+    }
+
+    // Use the same browser for ChatGPT pre-login and OAuth to retain Google sessions.
+    private void openInBrowser(String url) {
+        if (!url.startsWith("https://")) throw new IllegalArgumentException("HTTPS URL required");
+        Intent chrome = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        chrome.setPackage("com.android.chrome");
+        try { startActivity(chrome); }
+        catch (android.content.ActivityNotFoundException ignored) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         }
     }
 
