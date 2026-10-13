@@ -11,9 +11,27 @@ Ukrainian-language mobile-first food and weight journal with a purple interface,
 - Shortcut to ChatGPT and one-tap daily-summary copy
 - Optional OpenAI API-powered chat and meal photo estimation (**requires a separate API key**)
 
-## ChatGPT subscription integration
+## ChatGPT Plus in Android preview (experimental)
 
-**Not implemented.** Opening ChatGPT or copying a daily summary is not an OAuth connection and does not automatically synchronize data. Sign in with ChatGPT feasibility and eligibility for open-source applications must be verified against official OpenAI documentation before implementing or promising use of ChatGPT subscriptions. See [INTEGRATION_PLAN.md](INTEGRATION_PLAN.md).
+The Android **preview** source includes an experimental implementation of [Sign in with ChatGPT for open-source apps](https://developers.openai.com/siwc/token-sharing-open-source/sign-in):
+
+- System-browser OAuth sign-in, dynamic client registration, PKCE, state, and nonce
+- Local loopback callback and JWT signature/claim verification
+- Android Keystore-encrypted OAuth tokens
+- Model discovery and streaming Responses API requests with `store:false`
+- Text and meal-photo requests, only after user consent
+
+**Unverified on a physical phone:** This native integration still needs end-to-end testing with an eligible ChatGPT Plus account. Sign-in alone is not proof that plan usage works. Access depends on authorization, model capabilities, account policy, and usage limits. It does **not** access ChatGPT conversations, memory, or this chat.
+
+The browser version offers ChatGPT shortcut/copy and a separate optional API-key path, but has no native OAuth.
+
+## Build Android preview
+
+GitHub Actions workflow [Build Android preview APK](.github/workflows/build-android.yml) builds a **debug APK** on each code change. Open GitHub Actions → latest successful run → download the `lehko-ai-preview-debug-apk` artifact. Extract the ZIP on Android, then install the APK.
+
+The preview has Android package `ua.lehko.ai.preview`, distinct from the older `ua.lehko.ai` release. It installs **beside**, not on top of, the previous app. Existing local diary data are not automatically migrated; export/import backup if needed.
+
+Do not distribute a release APK until its native sign-in, token refresh, photo analysis, data handling, and signing are tested. Never commit signing keys or OAuth tokens.
 
 ## Run
 
