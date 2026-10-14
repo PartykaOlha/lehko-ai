@@ -37,11 +37,26 @@ public final class ChatGPTAuth {
     private final SharedPreferences prefs;
     private final SecureRandom random = new SecureRandom();
     private volatile String lastError = "";
+    private volatile String oauthPhase = "Не підключено";
+    private void phase(String v) {
+        oauthPhase = v;
+        prefs.edit().putString("oauthPhase", v).apply();
+    }
+    private void failure(String v) {
+        lastError = v;
+        prefs.edit().putString("lastOAuthError", v).apply();
+    }
+    private void clearFailure() {
+        lastError = "";
+        prefs.edit().remove("lastOAuthError").apply();
+    }
 
     public interface BrowserOpener { void open(String url); }
     public ChatGPTAuth(Context context) {
         this.context = context.getApplicationContext();
         this.prefs = this.context.getSharedPreferences("lehko_oauth", Context.MODE_PRIVATE);
+        this.lastError = prefs.getString("lastOAuthError", "");
+        this.oauthPhase = prefs.getString("oauthPhase", "Не підключено");
     }
     public synchronized JSONObject status() {
         JSONObject result = new JSONObject();
@@ -52,6 +67,7 @@ public final class ChatGPTAuth {
             result.put("connected", connected);
             result.put("email", connected ? profile.optString("email", "") : "");
             result.put("error", lastError);
+            result.put("phase", oauthPhase);
         } catch (Exception ignored) {
             try { result.put("connected", false).put("error", "Не вдалося відкрити захищені дані."); }
             catch (Exception ignored2) {}
@@ -59,13 +75,16 @@ public final class ChatGPTAuth {
         return result;
     }
     public synchronized void signOut() {
-        prefs.edit().remove("credentials").apply();
-        lastError = "";
+        prefs.edit().remove("credentials").remove("pending_client_id").apply();
+        clearFailure();
+        phase("Не підключено");
     }
     public synchronized void signIn(BrowserOpener browser) throws Exception {
-        lastError = "";
+        clearFailure();
+        phase("Підготовка");
         JSONObject previous = readCredentials();
-        String oldClientId = previous == null ? "" : previous.optString("client_id");
+        String oldClientId = previous == null
+                ? prefs.getString("pending_client_id", "") : previous.optString("client_id");
         String hostId = prefs.getString("host_id", null);
         if (hostId == null) {
             hostId = "urn:uuid:" + UUID.randomUUID().toString();
@@ -92,6 +111,7 @@ public final class ChatGPTAuth {
             params.put("nonce", nonce);
             params.put("code_challenge_method", "S256");
             params.put("code_challenge", challenge);
+            phase("Чекаю повернення з браузера");
             browser.open(AUTH + "?" + query(params));
 
             Map<String,String> callback;
@@ -109,7 +129,7 @@ public final class ChatGPTAuth {
                     callback.put(name, uri.getQueryParameter(name));
                 String body = "<!doctype html><meta charset='utf-8'><meta name='viewport' content='width=device-width'>"
                     + "<title>Легко AI</title><div style='font:20px system-ui;padding:40px'>"
-                    + "Поверніться до застосунку «Легко AI».</div>";
+                    + "Відповідь передано до «Легко AI». Поверніться в застосунок, щоб побачити результат перевірки підключення.</div>";
                 byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
                 OutputStream output = socket.getOutputStream();
                 output.write(("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n"
@@ -118,6 +138,7 @@ public final class ChatGPTAuth {
                 output.write(bytes);
                 output.flush();
             }
+            phase("Отримано callback. Перевіряю відповідь");
             if (!MessageDigest.isEqual(state.getBytes(StandardCharsets.US_ASCII),
                     callback.getOrDefault("state", "").getBytes(StandardCharsets.US_ASCII)))
                 throw new SecurityException("Неправильний OAuth state.");
@@ -128,6 +149,8 @@ public final class ChatGPTAuth {
                 throw new SecurityException("OpenAI не повернув client_id.");
             if (!oldClientId.isEmpty() && !oldClientId.equals(issued))
                 throw new SecurityException("Невідповідність OAuth client_id.");
+            // Preserve a valid registration for retry after token-exchange failures.
+            prefs.edit().putString("pending_client_id", issued).commit();
             String code = callback.get("code");
             if (code == null || code.isEmpty()) throw new SecurityException("Немає OAuth-коду.");
             Map<String,String> form = new LinkedHashMap<>();
@@ -137,12 +160,15 @@ public final class ChatGPTAuth {
             form.put("code_verifier", verifier);
             form.put("redirect_uri", redirect);
             form.put("resource", RESOURCE);
+            phase("Обмін коду на токен");
             JSONObject received = requestJson("POST", TOKEN,
                     "application/x-www-form-urlencoded", query(form), null);
+            phase("Перевірка підпису токена");
             JSONObject identity = verifyIdToken(received.optString("id_token"), issued, nonce);
             String subject = identity.getString("sub");
             if (previous != null && !previous.optString("subject").equals(subject))
                 throw new SecurityException("Під час входу вибрано інший ChatGPT-акаунт.");
+            phase("Перевірка дозволу Plus");
             String scope = received.optString("scope");
             if (!(" " + scope + " ").contains(" chatgpt.tokens.use.direct "))
                 throw new SecurityException("Потрібен дозвіл на використання підписки ChatGPT.");
@@ -154,10 +180,14 @@ public final class ChatGPTAuth {
                 .put("refresh_token", received.optString("refresh_token", ""))
                 .put("scope", scope)
                 .put("expires_at", System.currentTimeMillis() / 1000 + received.optLong("expires_in", 3600));
+            phase("Збереження підключення");
             storeCredentials(credentials);
-            lastError = "";
+            prefs.edit().remove("pending_client_id").apply();
+            clearFailure();
+            phase("Авторизацію завершено");
         } catch (Exception e) {
-            lastError = "Вхід ChatGPT: " + safeMessage(e);
+            failure("Помилка на етапі «" + oauthPhase + "»: " + safeMessage(e));
+            phase("Підключення не завершене");
             throw e;
         }
     }
@@ -315,8 +345,14 @@ public final class ChatGPTAuth {
         int status = c.getResponseCode();
         String response = readAll(status >= 400 ? c.getErrorStream() : c.getInputStream());
         c.disconnect();
-        if (status >= 400) throw new IOException("HTTP " + status + ": "
-                + response.substring(0, Math.min(230, response.length())));
+        if (status >= 400) {
+            String oauthCode = "";
+            try {
+                oauthCode = new JSONObject(response).optString("error", "");
+                if (!oauthCode.matches("[A-Za-z0-9_.-]{1,64}")) oauthCode = "";
+            } catch (Exception ignored) { }
+            throw new IOException("HTTP " + status + (oauthCode.isEmpty() ? "" : " (" + oauthCode + ")"));
+        }
         return new JSONObject(response);
     }
 
@@ -388,8 +424,14 @@ public final class ChatGPTAuth {
         return new JSONObject(new String(value, StandardCharsets.UTF_8));
     }
     private static String safeMessage(Exception e) {
-        String message = e.getMessage();
-        if (message == null) return "невідома помилка";
-        return message.substring(0, Math.min(message.length(), 180));
+        if (e instanceof java.net.SocketTimeoutException)
+            return "Завершився час очікування повернення з браузера.";
+        if (e instanceof java.net.UnknownHostException)
+            return "Немає доступу до сервера OpenAI.";
+        if (e instanceof SecurityException)
+            return "Не пройдено перевірку безпеки: " + e.getClass().getSimpleName();
+        if (e instanceof IOException)
+            return "Мережева помилка: " + e.getClass().getSimpleName() + " (перевір інтернет або дозвіл ChatGPT).";
+        return e.getClass().getSimpleName();
     }
 }
