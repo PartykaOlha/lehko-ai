@@ -139,6 +139,15 @@ public final class MainActivity extends Activity {
     @Override public void onBackPressed() {
         if (web != null && web.canGoBack()) web.goBack(); else super.onBackPressed();
     }
+    @Override protected void onResume() {
+        super.onResume();
+        // Returning from the system browser is not proof of a completed token exchange.
+        // Query the native session after the application becomes visible again.
+        if (web != null) {
+            web.postDelayed(() -> notifyStatus(), 650);
+        }
+    }
+
     @Override protected void onDestroy() {
         background.shutdownNow();
         if (web != null) web.destroy();
