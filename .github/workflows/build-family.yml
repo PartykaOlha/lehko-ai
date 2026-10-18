@@ -32,17 +32,17 @@ jobs:
           gradle=Path("app/build.gradle")
           s=gradle.read_text()
           assert "ua.lehko.ai.stable" in s
-          s=s.replace("ua.lehko.ai.stable","ua.lehko.ai.family").replace("versionCode 18","versionCode 1").replace("1.8-beta","family-1.0")
+          s=s.replace("ua.lehko.ai.stable","ua.lehko.ai.familyv2").replace("versionCode 28","versionCode 1").replace("1.8-beta","family-2.0")
           gradle.write_text(s)
           manifest=Path("app/src/main/AndroidManifest.xml")
-          s=manifest.read_text().replace("Легко AI 1.7","Легко AI · Сім’я")
+          s=manifest.read_text().replace("Легко AI 1.7","Легко AI · Сім’я 2")
           manifest.write_text(s)
           PY
       - name: Build APK
         run: gradle --no-daemon :app:assembleDebug
       - uses: actions/upload-artifact@v4
         with:
-          name: lehko-ai-family-android-apk
+          name: lehko-ai-family-v2-android-apk
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 30
