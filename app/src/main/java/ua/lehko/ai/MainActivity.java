@@ -23,6 +23,7 @@ public final class MainActivity extends Activity {
     private ValueCallback<Uri[]> fileCallback;
     private final ExecutorService background = Executors.newSingleThreadExecutor();
     private ChatGPTAuth auth;
+    private CalorieApi calorie;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -31,6 +32,7 @@ public final class MainActivity extends Activity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                 | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         auth = new ChatGPTAuth(this);
+        calorie = new CalorieApi(this);
         web = new WebView(this);
         WebSettings settings = web.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -101,6 +103,40 @@ public final class MainActivity extends Activity {
                 try { sendResult(id, true, auth.respond(prompt, photo)); }
                 catch (Exception e) {
                     sendResult(id, false, e.getMessage() == null ? "Не вдається виконати запит." : e.getMessage());
+                }
+            });
+        }
+        @JavascriptInterface public boolean calorieHasKey() { return calorie.hasKey(); }
+        @JavascriptInterface public boolean calorieStoreKey(String key) {
+            try { calorie.setKey(key); return true; }
+            catch (Exception ex) { return false; }
+        }
+        @JavascriptInterface public void calorieClearKey() { calorie.clearKey(); }
+        @JavascriptInterface public void calorieAsk(String id, String prompt, String photo) {
+            if (id == null || id.length() > 80 || prompt == null || prompt.length() > 6000
+                    || photo == null || photo.length() > 5_000_000) {
+                sendResult(id == null ? "" : id, false, "Перевищено допустимий розмір.");
+                return;
+            }
+            background.execute(() -> {
+                try {
+                    String response;
+                    if (calorie.hasKey()) {
+                        response = calorie.estimate(prompt, photo);
+                    } else {
+                        String instructions = "Поверни ТІЛЬКИ JSON: "
+                            + "{\\\"dish\\\":\\\"назва\\\",\\\"calories_kcal\\\":420,"
+                            + "\\\"portion_g\\\":300,\\\"protein_g\\\":24,"
+                            + "\\\"fat_g\\\":14,\\\"carbs_g\\\":48,"
+                            + "\\\"note\\\":\\\"неточність оцінки\\\"}. "
+                            + "Оціни всю порцію за фото й описом, числа орієнтовні. "
+                            + "Пиши українською. Опис: ";
+                        response = auth.respond(instructions + prompt, photo);
+                    }
+                    sendResult(id, true, response);
+                } catch (Exception ex) {
+                    sendResult(id, false, ex.getMessage() == null
+                            ? "Не вдалося зв'язатися з AI." : ex.getMessage());
                 }
             });
         }
