@@ -1,0 +1,117 @@
+name: Build Magic Family Android v6 APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'family.html'
+      - '.github/workflows/build-family-magic-v6.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Configure Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Configure Android SDK
+        run: |
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-35" "build-tools;35.0.0"
+      - name: Configure Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '8.11.1'
+      - name: Prepare Magic edition source and icon
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          src=Path('family.html').read_text(encoding='utf-8')
+          assert len(src)>120000, 'Incomplete source'
+          assert 'function magicEvents()' in src
+          assert src.count("type:'season'")==4
+          assert src.count("type:'signature'")==6
+          assert 'id="openSettings"' in src
+          assert 'MAGIC_ART' in src and 'FOOD_ART_V6' in src
+          assert 'function startTaskDrag(' in src and 'function persistTaskOrder(' in src
+          assert 'function productCatalog()' in src and 'data-pickproduct' in src
+          assert 'async function pictureFromFile(' in src and 'id="mealPhotoInput"' in src
+          assert len(src)>400000, 'Missing extended meal illustrations'
+          assert 'id="showMyColors"' in src and 'function saveColor(' in src
+          assert 'id="resetColors"' in src and 'renderColorControls' in src
+          assert src.count('data-magical-scene')>=1
+          assert 'можна змінювати вручну' not in src
+          assert 'function pageMenu()' in src and 'function pageShop()' in src
+          assert 'function pageTasks()' in src and 'function pageHabits()' in src
+          folder=Path('app/src/main/assets');folder.mkdir(parents=True,exist_ok=True)
+          (folder/'index.html').write_text(src,encoding='utf-8')
+
+          build=Path('app/build.gradle')
+          content=build.read_text()
+          for pattern,replacement in [
+            (r"applicationId\s+'[^']+'","applicationId 'ua.lehko.ai.magicplanner2026'"),
+            (r'versionCode\s+\d+','versionCode 6'),
+            (r"versionName\s+'[^']+'","versionName '6.0-magic-planner'")]:
+            content,n=re.subn(pattern,replacement,content)
+            assert n==1, (pattern,n)
+          build.write_text(content)
+          manifest=Path('app/src/main/AndroidManifest.xml')
+          contents,n=re.subn(r'android:label="[^"]+"','android:label="Легко AI · Магічний планер"',manifest.read_text())
+          assert n==1
+          manifest.write_text(contents)
+
+          icon=Path('app/src/main/res/drawable/ic_launcher.xml')
+          icon.write_text("""<vector xmlns:android="http://schemas.android.com/apk/res/android"
+              android:width="108dp" android:height="108dp"
+              android:viewportWidth="108" android:viewportHeight="108">
+            <path android:fillColor="#701F36"
+              android:pathData="M24,4 L84,4 Q104,4 104,24 L104,84 Q104,104 84,104 L24,104 Q4,104 4,84 L4,24 Q4,4 24,4 Z"/>
+            <path android:fillColor="#E8BC74"
+              android:pathData="M54,16 L63,45 L92,54 L63,63 L54,92 L45,63 L16,54 L45,45 Z"/>
+            <path android:fillColor="#FFF1CE"
+              android:pathData="M54,35 L59,49 L73,54 L59,59 L54,73 L49,59 L35,54 L49,49 Z"/>
+            <path android:fillColor="#E8BC74"
+              android:pathData="M26,22 L29,27 L34,30 L29,33 L26,38 L23,33 L18,30 L23,27 Z"/>
+            <path android:fillColor="#E8BC74"
+              android:pathData="M82,76 L85,81 L90,84 L85,87 L82,92 L79,87 L74,84 L79,81 Z"/>
+          </vector>""",encoding='utf-8')
+          PY
+      - name: Build a signed APK with Gradle
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+      - name: Verify APK, signing and embedded HTML
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          "${ANDROID_HOME}/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "${ANDROID_HOME}/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/magic-badging.txt
+          grep -q "name='ua.lehko.ai.magicplanner2026'" /tmp/magic-badging.txt
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('app/build/outputs/apk/debug/app-debug.apk') as z:
+            ui=z.read('assets/index.html').decode('utf-8')
+            assert len(ui)>120000
+            assert 'MAGIC_THEMES' in ui and 'renderMagicOptions' in ui
+            assert 'MAGIC_ART' in ui and 'FOOD_ART_V6' in ui
+            assert 'function moveTaskDrag(' in ui and 'function finishTaskDrag(' in ui
+            assert 'data-order="up"' in ui and 'function productMatches(' in ui
+            assert 'id="mealPhotoInput"' in ui and 'mealKind(title)' in ui
+            assert 'renderColorControls' in ui and 'paletteControls' in ui
+            assert 'showMyColors' in ui and 'resetColors' in ui
+            assert ui.count("type:'season'")==4
+            assert ui.count("type:'signature'")==6
+            assert 'Налаштування вигляду' in ui
+          PY
+          sha256sum "$APK"
+      - name: Upload APK to GitHub
+        uses: actions/upload-artifact@v5
+        with:
+          name: lehko-magic-v6-signed-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
