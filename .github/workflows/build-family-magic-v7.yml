@@ -42,7 +42,13 @@ jobs:
           assert 'function startTaskDrag(' in src and 'function persistTaskOrder(' in src
           assert 'function productCatalog()' in src and 'data-pickproduct' in src
           assert 'async function pictureFromFile(' in src and 'id="mealPhotoInput"' in src
-          assert len(src)>435000, 'Missing full health tracker or illustrations'\n          assert src.count(\"type:'color'\")==6\n          assert 'function healthProfile(' in src and 'function bmiOf(' in src\n          assert 'function saveMeasurements(' in src and 'function moveHealthRecord(' in src\n          assert 'function saveWeighSchedule(' in src and 'function changePlannedWeight(' in src\n          assert 'function weightChartSvg(' in src and 'function profileScheduled(' in src\n          assert 'function meal(d,k){const shift=' in src
+          assert len(src)>435000, 'Missing full health tracker or illustrations'
+          assert src.count(\"type:'color'\")==6
+          assert 'function healthProfile(' in src and 'function bmiOf(' in src
+          assert 'function saveMeasurements(' in src and 'function moveHealthRecord(' in src
+          assert 'function saveWeighSchedule(' in src and 'function changePlannedWeight(' in src
+          assert 'function weightChartSvg(' in src and 'function profileScheduled(' in src
+          assert 'function meal(d,k){const shift=' in src
           assert 'id="showMyColors"' in src and 'function saveColor(' in src
           assert 'id="resetColors"' in src and 'renderColorControls' in src
           assert src.count('data-magical-scene')>=1
@@ -100,7 +106,10 @@ jobs:
             assert 'MAGIC_ART' in ui and 'FOOD_ART_V6' in ui
             assert 'function moveTaskDrag(' in ui and 'function finishTaskDrag(' in ui
             assert 'data-order="up"' in ui and 'function productMatches(' in ui
-            assert 'id="mealPhotoInput"' in ui and 'mealKind(title)' in ui\n            assert ui.count(\"type:'color'\")==6\n            assert 'data-profile="partner"' in ui and 'saveMenuStart' in ui\n            assert 'saveMeasurements' in ui and 'moveHealthRecord' in ui
+            assert 'id="mealPhotoInput"' in ui and 'mealKind(title)' in ui
+            assert ui.count(\"type:'color'\")==6
+            assert 'data-profile="partner"' in ui and 'saveMenuStart' in ui
+            assert 'saveMeasurements' in ui and 'moveHealthRecord' in ui
             assert 'renderColorControls' in ui and 'paletteControls' in ui
             assert 'showMyColors' in ui and 'resetColors' in ui
             assert ui.count("type:'season'")==4
