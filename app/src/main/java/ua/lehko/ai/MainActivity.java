@@ -124,13 +124,7 @@ public final class MainActivity extends Activity {
                     if (calorie.hasKey()) {
                         response = calorie.estimate(prompt, photo);
                     } else {
-                        String instructions = "Поверни ТІЛЬКИ JSON: "
-                            + "{\\\"dish\\\":\\\"назва\\\",\\\"calories_kcal\\\":420,"
-                            + "\\\"portion_g\\\":300,\\\"protein_g\\\":24,"
-                            + "\\\"fat_g\\\":14,\\\"carbs_g\\\":48,"
-                            + "\\\"note\\\":\\\"неточність оцінки\\\"}. "
-                            + "Оціни всю порцію за фото й описом, числа орієнтовні. "
-                            + "Пиши українською. Опис: ";
+                        String instructions = "Поверни тільки один JSON-об’єкт із полями dish, calories_kcal, portion_g, protein_g, fat_g, carbs_g, note. Оціни всю порцію за фото й описом. Не роби вигляд, що калорії відомі точно. Пиши українською. Опис: ";
                         response = auth.respond(instructions + prompt, photo);
                     }
                     sendResult(id, true, response);
