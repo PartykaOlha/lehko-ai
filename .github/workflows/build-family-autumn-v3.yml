@@ -1,0 +1,94 @@
+name: Build Family Autumn v3 APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'family.html'
+      - '.github/workflows/build-family-autumn-v3.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        run: |
+          "${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-35" "build-tools;35.0.0"
+      - name: Set up Gradle 8.11.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Configure standalone family app and autumn appearance
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          html = Path('family.html').read_text(encoding='utf-8')
+          assert len(html) > 90000, 'Family HTML is incomplete'
+          for token in ['function pageMenu()', 'function pageShop()', 'function pageTasks()', 'function pageHabits()', 'function pageWeight()', 'function pageRewards()', 'Осінній план']:
+              assert token in html, f'Missing feature: {token}'
+          assets=Path('app/src/main/assets')
+          assets.mkdir(parents=True,exist_ok=True)
+          (assets/'index.html').write_text(html, encoding='utf-8')
+
+          gradle=Path('app/build.gradle')
+          code=gradle.read_text()
+          for pattern,replacement in [
+              (r"applicationId\s+'[^']+'", "applicationId 'ua.lehko.ai.autumn2026'"),
+              (r'versionCode\s+\d+', 'versionCode 3'),
+              (r"versionName\s+'[^']+'", "versionName '3.0-autumn'"),
+          ]:
+              code,count=re.subn(pattern,replacement,code)
+              assert count == 1, (pattern,count)
+          gradle.write_text(code)
+
+          manifest=Path('app/src/main/AndroidManifest.xml')
+          content=manifest.read_text()
+          content,count=re.subn(r'android:label="[^"]+"','android:label="Легко AI · Осінь"',content)
+          assert count == 1
+          manifest.write_text(content)
+
+          icon=Path('app/src/main/res/drawable/ic_launcher.xml')
+          src=icon.read_text()
+          src=src.replace('#713BDD','#AC592F').replace('#E5D6FF','#F4CAA0')
+          icon.write_text(src)
+          PY
+      - name: Compile and sign debug APK with Android Gradle
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+      - name: Verify APK signature, package and built-in UI
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          "${ANDROID_HOME}/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "${ANDROID_HOME}/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/app-badging.txt
+          grep -q "name='ua.lehko.ai.autumn2026'" /tmp/app-badging.txt
+          python3 - <<'PY'
+          import zipfile
+          p='app/build/outputs/apk/debug/app-debug.apk'
+          with zipfile.ZipFile(p) as z:
+              source=z.read('assets/index.html').decode('utf-8')
+              assert 'Осінній план' in source
+              assert 'Редагувати' in source
+              assert 'Покупки за меню' in source
+              assert 'Справи та таймінг' in source
+              assert 'Звички' in source
+          PY
+          sha256sum "$APK"
+      - name: Publish installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lehko-family-autumn-v3-signed-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
