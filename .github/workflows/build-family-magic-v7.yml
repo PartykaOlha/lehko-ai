@@ -43,7 +43,7 @@ jobs:
           assert 'function productCatalog()' in src and 'data-pickproduct' in src
           assert 'async function pictureFromFile(' in src and 'id="mealPhotoInput"' in src
           assert len(src)>435000, 'Missing full health tracker or illustrations'
-          assert src.count(\"type:'color'\")==6
+          assert src.count("type:'color'")==6
           assert 'function healthProfile(' in src and 'function bmiOf(' in src
           assert 'function saveMeasurements(' in src and 'function moveHealthRecord(' in src
           assert 'function saveWeighSchedule(' in src and 'function changePlannedWeight(' in src
@@ -107,7 +107,7 @@ jobs:
             assert 'function moveTaskDrag(' in ui and 'function finishTaskDrag(' in ui
             assert 'data-order="up"' in ui and 'function productMatches(' in ui
             assert 'id="mealPhotoInput"' in ui and 'mealKind(title)' in ui
-            assert ui.count(\"type:'color'\")==6
+            assert ui.count("type:'color'")==6
             assert 'data-profile="partner"' in ui and 'saveMenuStart' in ui
             assert 'saveMeasurements' in ui and 'moveHealthRecord' in ui
             assert 'renderColorControls' in ui and 'paletteControls' in ui
