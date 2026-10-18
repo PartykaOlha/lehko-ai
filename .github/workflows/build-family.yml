@@ -32,7 +32,7 @@ jobs:
           gradle=Path("app/build.gradle")
           s=gradle.read_text()
           assert "ua.lehko.ai.stable" in s
-          s=s.replace("ua.lehko.ai.stable","ua.lehko.ai.familyv2").replace("versionCode 28","versionCode 1").replace("1.8-beta","family-2.0")
+          s=s.replace("ua.lehko.ai.stable","ua.lehko.ai.familyv2").replace("versionCode 18","versionCode 2").replace("1.8-beta","family-2.0")
           gradle.write_text(s)
           manifest=Path("app/src/main/AndroidManifest.xml")
           s=manifest.read_text().replace("Легко AI 1.7","Легко AI · Сім’я 2")
