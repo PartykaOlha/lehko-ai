@@ -1,0 +1,87 @@
+name: Build Lehko Family Offline v9
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'family.html'
+      - 'offline/src/**'
+      - '.github/workflows/build-family-offline-v9.yml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Install Android SDK
+        run: '"$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-35" "build-tools;35.0.0"'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Configure offline-only family edition
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html=Path('family.html').read_text(encoding='utf-8')
+          assert len(html)>500000
+          assert html.count('data-tab=')==6
+          for token in ('function pageMenu()', 'function pageShop()', 'function pageTasks()', 'function pageHabits()', 'function pageWeight()', 'function pageRewards()', 'function healthProfile(', 'function magicEvents()'):
+              assert token in html, token
+          for forbidden in ('pageCalories()', 'calorieEvents()', 'LehkoAndroid', 'OpenAI', 'AI чат'):
+              assert forbidden not in html, forbidden
+          assets=Path('app/src/main/assets')
+          assets.mkdir(parents=True,exist_ok=True)
+          (assets/'index.html').write_text(html,encoding='utf-8')
+          java=Path('app/src/main/java/ua/lehko/ai')
+          (java/'MainActivity.java').write_bytes(Path('offline/src/MainActivity.java').read_bytes())
+          for name in ('ChatGPTAuth.java','CalorieApi.java'):
+              (java/name).unlink(missing_ok=True)
+          gradle=Path('app/build.gradle')
+          content=gradle.read_text()
+          for pat,replacement in [(r"applicationId\s+'[^']+'","applicationId 'ua.lehko.family.offline2026'"),(r'versionCode\s+\d+','versionCode 9'),(r"versionName\s+'[^']+'","versionName '9.0-offline'")]:
+              content,n=re.subn(pat,replacement,content)
+              assert n==1,pat
+          gradle.write_text(content)
+          manifest=Path('app/src/main/AndroidManifest.xml')
+          data=manifest.read_text()
+          data=data.replace('<uses-permission android:name="android.permission.INTERNET"/>','')
+          data,n=re.subn(r'android:label="[^"]+"','android:label="Легко · Сім’я"',data)
+          assert n==1 and 'android.permission.INTERNET' not in data
+          manifest.write_text(data)
+          icon=Path('app/src/main/res/drawable/ic_launcher.xml')
+          image=icon.read_text().replace('#713BDD','#791F3A').replace('#E5D6FF','#F3B96A')
+          icon.write_text(image)
+          PY
+      - name: Build signed debug APK
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+      - name: Verify signature, package and zero internet permissions
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | tee /tmp/badging.txt
+          grep -q "name='ua.lehko.family.offline2026'" /tmp/badging.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump permissions "$APK" | tee /tmp/perms.txt
+          ! grep -q 'android.permission.INTERNET' /tmp/perms.txt
+          python3 - <<'PY'
+          import zipfile
+          with zipfile.ZipFile('app/build/outputs/apk/debug/app-debug.apk') as z:
+              html=z.read('assets/index.html').decode('utf-8')
+              assert len(html)>500000 and html.count('data-tab=')==6
+              assert 'OpenAI' not in html and 'calorieEvents()' not in html
+              assert 'function pageWeight()' in html and 'function pageTasks()' in html
+          PY
+          sha256sum "$APK"
+      - name: Publish APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lehko-family-v9-offline-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
