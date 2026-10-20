@@ -84,7 +84,7 @@ jobs:
           import zipfile
           with zipfile.ZipFile('app/build/outputs/apk/debug/app-debug.apk') as z:
               html=z.read('assets/index.html').decode('utf-8')
-              assert len(html)>585000 and html.count('data-tab=')==7
+              assert len(html)>610000 and html.count('data-tab=')==8
               assert 'function pageChildren()' in html
               assert 'function childActions(b)' in html
               assert 'CHILD_ACTIVITIES' in html
