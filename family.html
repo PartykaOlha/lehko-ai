@@ -221,6 +221,37 @@ nav::-webkit-scrollbar{display:none}nav button{flex:0 0 58px;min-height:51px;whi
 .ideal-school{display:flex;gap:12px;align-items:center;background:linear-gradient(115deg,var(--light),var(--paper));border:1px solid var(--border);border-radius:22px;padding:13px;margin:12px 0;box-shadow:0 8px 22px rgba(73,26,44,.06)}.ideal-school .ideal-check{flex:0 0 43px}.ideal-school .school-text{flex:1;min-width:0}.ideal-school .school-text strong{font-size:15px}.ideal-school .school-text p{font-size:12px;color:var(--muted);margin:3px 0 0}
 .ideal-school .ideal-time{font-size:13px;padding:7px 9px;border-radius:11px}.ideal-task .ideal-row-actions{margin-top:3px}.ideal-task .ideal-row-actions button{min-height:38px}.ideal-btn-primary{border-color:var(--purple)!important;background:var(--purple)!important;color:white!important}.ideal-open-other{display:flex;justify-content:space-between;align-items:center;width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:17px;background:var(--paper);color:var(--ink);font-weight:790;min-height:52px}
 .ideal-other{background:var(--light);border:1px solid var(--border);border-radius:18px;padding:11px;margin-top:10px}.ideal-other .ideal-task{box-shadow:none}.ideal-small-note{padding:12px 14px;border-radius:15px;background:var(--light);font-size:12px;line-height:1.55;color:var(--muted)}.ideal-empty{text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:18px;padding:18px}
+
+/* 15: Habit mosaic */
+.habit-hero{overflow:hidden;position:relative;background:linear-gradient(120deg,color-mix(in srgb,var(--purple) 12%,var(--paper)),color-mix(in srgb,var(--purple2) 9%,var(--paper)))}
+.habit-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.habit-switch{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.habit-switch .btn.active,.habit-switch button.active{background:var(--purple);color:white;border-color:transparent}
+.habit-summary{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.habit-summary span{border-radius:14px;padding:7px 11px;background:rgba(255,255,255,.56);font-size:12px}
+.habit-scroll{overflow:auto;overscroll-behavior-x:contain;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.49);scrollbar-width:thin;margin-top:12px;max-width:100%}
+.habit-table{width:max-content;min-width:100%;border-collapse:separate;border-spacing:0;font-size:12px}
+.habit-table thead th{background:color-mix(in srgb,var(--paper) 92%,var(--purple) 8%);position:sticky;top:0;z-index:2;font-size:10px;padding:9px 2px 6px;min-width:31px;text-align:center;font-weight:650;color:var(--muted)}
+.habit-table thead th .num{font-size:12px;color:var(--ink);font-weight:800}
+.habit-table thead th.today{background:color-mix(in srgb,var(--purple) 18%,var(--paper))}
+.habit-table th.habit-name,.habit-table td.habit-name{position:sticky;left:0;z-index:3;background:var(--paper);min-width:160px;width:160px;max-width:160px;border-right:1px solid var(--border);text-align:left}
+.habit-table thead th.habit-name{z-index:5;padding:9px;font-size:12px}
+.habit-table td{padding:5px 2px;border-top:1px solid color-mix(in srgb,var(--border) 60%,transparent);text-align:center}
+.habit-table td.habit-name{padding:8px 8px}
+.habit-title{font-size:12px;line-height:1.25;word-break:normal;overflow-wrap:anywhere;font-weight:750;display:block;color:var(--ink)}
+.habit-sub{display:block;font-size:10px;color:var(--muted);padding-top:3px}
+.habit-square{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;min-width:27px;min-height:27px;padding:0;border:1.5px solid color-mix(in srgb,var(--habit-ink) 55%,var(--border));background:transparent;border-radius:7px;font-size:18px;font-weight:850;color:transparent;box-shadow:none;line-height:1}
+.habit-square:focus-visible{outline:3px solid var(--purple2);outline-offset:2px}
+.habit-square[data-on="true"]{color:#fff;background:var(--habit-ink);box-shadow:0 2px 6px color-mix(in srgb,var(--habit-ink) 26%,transparent);border-color:var(--habit-ink)}
+.habit-square.future{opacity:.25;cursor:not-allowed}
+.habit-cell.today{background:color-mix(in srgb,var(--purple2) 9%,transparent)}
+.habit-palette{width:26px;height:26px;border-radius:9px;flex-shrink:0;border:2px solid rgba(255,255,255,.68)}
+.habit-filter-row{display:flex;overflow-x:auto;gap:6px;padding:6px 0 4px}
+.habit-filter-row .btn{white-space:nowrap}
+.habit-form{border-radius:18px;padding:14px;background:color-mix(in srgb,var(--paper) 95%,var(--purple) 5%);border:1px solid var(--border);margin-top:12px}
+.habit-form .field{background:var(--paper)}
+.habit-legend{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);padding-top:10px}
+@media(max-width:420px){.habit-table th.habit-name,.habit-table td.habit-name{min-width:132px;width:132px;max-width:132px}.habit-square{width:26px;height:26px;min-width:26px;min-height:26px}.habit-table thead th{min-width:29px}.habit-title{font-size:11px}}
 </style>
 <style id="recipe-lib-theme">
 .recipe-library-head{padding:17px;border-radius:22px;background:linear-gradient(135deg,rgba(115,25,62,.96),rgba(186,65,85,.87));color:white;box-shadow:0 12px 30px rgba(93,24,49,.17)}
@@ -274,6 +305,39 @@ const EXTRA_RULES=[{"keys":["крем-суп","суп","рагу","тушк","б
 const FIRST='2026-10-19', LAST='2026-12-24',FIRST_WEIGH='2026-10-25',STORE='lehko.family.v1';
 const MEALS=[['b','Сніданок','08:00'],['l','Обід','13:00'],['t','Перекус / десерт','16:00'],['s','Вечеря','18:30']];
 const HABITS=[['morning','Ранкова зарядка','5–10 хв'],['dumbbell','Гантелі','Силове тренування, комфортне навантаження'],['orbitrek','Орбітрек','За самопочуттям'],['english','Англійська мова','10–20 хв']];
+
+const HABIT_PRESETS=[
+ {id:'morning',title:'Ранкова зарядка',group:'Здоров’я',color:'#C4773D',note:'Легка розминка'},
+ {id:'dumbbell',title:'Гантелі',group:'Здоров’я',color:'#B05C53',note:'За самопочуттям'},
+ {id:'orbitrek',title:'Орбітрек',group:'Здоров’я',color:'#558F82',note:'Комфортне навантаження'},
+ {id:'english',title:'Англійська мова',group:'Навчання',color:'#6578B5',note:'10–20 хвилин'},
+ {id:'selfkind',title:'Турбота про себе',group:'Здоров’я',color:'#B97599',note:'Без зобов’язань'},
+ {id:'one_zone',title:'Одна зона квартири',group:'Дім',color:'#CD9761',note:'Достатньо 10 хвилин'},
+ {id:'science_focus',title:'Наукова робота',group:'Наука й робота',color:'#7846AB',note:'Хоча б один змістовний блок'},
+ {id:'paper_writing',title:'Написання статті',group:'Наука й робота',color:'#A74164',note:'Текст, рисунки, правки'},
+ {id:'peer_review',title:'Рецензії',group:'Наука й робота',color:'#3E7EAE',note:'Читання та висновки'},
+ {id:'experiment_code',title:'Експерименти та код',group:'Наука й робота',color:'#27857D',note:'Аналіз, моделі, дані'},
+ {id:'science_reading',title:'Наукові публікації',group:'Наука й робота',color:'#916C31',note:'Читання й нотатки'},
+ {id:'dissertations',title:'Дисертаційна робота',group:'Наука й робота',color:'#8D5AA8',note:'Своя чи зі здобувачами'},
+ {id:'lecture_prep',title:'Лекції та матеріали',group:'Наука й робота',color:'#C16D36',note:'Підготовка й оновлення'},
+ {id:'grants_erasmus',title:'Гранти та Erasmus',group:'Наука й робота',color:'#497C95',note:'Заявки та можливості'},
+ {id:'academic_letters',title:'Наукові листи',group:'Наука й робота',color:'#9A6386',note:'Листування й організація'},
+];
+const HABIT_GROUPS=['Усі','Здоров’я','Наука й робота','Навчання','Дім'];
+const HEX_COLOR=/^#[0-9a-f]{6}$/i;
+function habitItems(){const presets=HABIT_PRESETS.map(p=>({...p,...(db.habitSettings[p.id]||{}),builtin:true}));const custom=(db.habitList||[]).filter(x=>x&&typeof x==='object').map(x=>({...x,...(db.habitSettings[x.id]||{}),builtin:false}));return [...presets,...custom].filter(x=>!x.hidden).map(x=>({...x,color:HEX_COLOR.test(x.color)?x.color:'#8C536D'}));}
+function habitAll(){return [...HABIT_PRESETS.map(x=>({...x,builtin:true})),...(db.habitList||[]).map(x=>({...x,builtin:false}))].map(x=>({...x,...(db.habitSettings[x.id]||{})}));}
+function habitWindow(){const focus=safeDay(ui.habitDate);const start=ui.habitView==='month'?focus.slice(0,7)+'01':weekStart(focus);const days=ui.habitView==='month'?new Date(Number(focus.slice(0,4)),Number(focus.slice(5,7)),0).getDate():7;return Array.from({length:days},(_,i)=>advance(start,i))}
+function habitLabel(day){return weekday(day).replace('.','').slice(0,2)}
+function habitMove(n){const d=dateD(ui.habitDate);if(ui.habitView==='month'){d.setDate(1);d.setMonth(d.getMonth()+n)}else d.setDate(d.getDate()+7*n);ui.habitDate=iso(d);render()}
+function habitStats(id,dates){return dates.reduce((total,date)=>total+(db.habits[date]?.[id]?1:0),0)}
+function habitSetMark(id,date){if(date>nowDate())return;const item=habitItems().find(x=>x.id===id);if(!item)return;const entries=(db.habits[date]??={});entries[id]=!entries[id];save();const left=$('#habitScroll')?.scrollLeft||0;render();const table=$('#habitScroll');if(table)table.scrollLeft=left}
+function habitSave(){const id=ui.habitEditId||null;const title=$('#habitTitle')?.value.trim().slice(0,70);const group=$('#habitGroup')?.value||'Наука й робота';const color=$('#habitColor')?.value;if(!title){alert('Введіть назву звички.');return}if(!HEX_COLOR.test(color||'')){alert('Виберіть колір.');return}if(!HABIT_GROUPS.includes(group)||group==='Усі'){alert('Виберіть категорію.');return}
+ if(id){const orig=habitAll().find(x=>x.id===id);if(!orig)return;(db.habitSettings[id]??={}).title=title;db.habitSettings[id].color=color;db.habitSettings[id].group=group;db.habitSettings[id].hidden=false;}else{const custom={id:'user_'+uid(),title,color,group,note:'Власна звичка'};db.habitList.push(custom)}ui.habitEditId=null;ui.habitEditOpen=false;save();render();}
+function habitHide(id){const item=habitAll().find(x=>x.id===id);if(!item)return;if(!confirm('Приховати «'+item.title+'»? Минулі відмітки залишаться в резервній копії.'))return;(db.habitSettings[id]??={}).hidden=true;ui.habitEditId=null;ui.habitEditOpen=false;save();render();}
+function habitRestore(id){if(!habitAll().some(x=>x.id===id))return;(db.habitSettings[id]??={}).hidden=false;save();render()}
+function habitForm(){if(!ui.habitEditOpen)return '';const x=habitAll().find(x=>x.id===ui.habitEditId)||{};return `<div class="habit-form"><h3>${x.id?'Редагувати звичку':'Нова звичка'}</h3><div class="input-group"><label>Назва</label><input id="habitTitle" class="field" maxlength="70" placeholder="Наприклад, робота над статтею" value="${esc(x.title||'')}"></div><div class="grid2" style="margin-top:10px"><div class="input-group"><label>Категорія</label><select id="habitGroup" class="field">${HABIT_GROUPS.slice(1).map(v=>`<option value="${esc(v)}" ${v===(x.group||'Наука й робота')?'selected':''}>${esc(v)}</option>`).join('')}</select></div><div class="input-group"><label>Колір квадратиків</label><input id="habitColor" type="color" class="field" style="padding:6px;height:48px" value="${esc(HEX_COLOR.test(x.color||'')?x.color:'#A74164')}"></div></div><div class="toolbar"><button class="btn" data-action="habitSave">Зберегти</button><button class="btn sec" data-action="habitClose">Скасувати</button>${x.id?`<button class="btn line" data-action="habitHide" data-id="${esc(x.id)}">Приховати</button>`:''}</div></div>`}
+
 const REWARDS=[[1,'Улюблена кава'],[3,'30 хв часу лише для себе'],[5,'Нова маска для обличчя'],[7,'Піна або сіль для ванни'],[10,'Нова рослина'],[14,'Бальзам для губ або лак'],[21,'Книга на вибір'],[30,'Косметичка або аксесуар'],[45,'Манікюр чи масаж'],[60,'Річ для хобі'],[67,'Особистий подарунок до Різдва']];
 const $=(s)=>document.querySelector(s),$$=(s)=>[...document.querySelectorAll(s)];
 const esc=(x)=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -292,6 +356,8 @@ const baseDays=Object.fromEntries(INITIAL_DAYS.map(d=>[d.d,d]));
 let db={};try{db=JSON.parse(localStorage.getItem(STORE))||{}}catch(e){db={}};
 if(!db||typeof db!=='object'||Array.isArray(db))db={};
 if(!db.selfCare||typeof db.selfCare!=='object'||Array.isArray(db.selfCare))db.selfCare={};
+if(!db.habitSettings||typeof db.habitSettings!=='object'||Array.isArray(db.habitSettings))db.habitSettings={};
+if(!Array.isArray(db.habitList))db.habitList=[];
 for(const k of ['shop','custom','habits','weight','claimed','gifts','mealEdits','shopV2','shopExtra','taskDone'])if(!db[k]||typeof db[k]!=='object')db[k]={};
 if(!Array.isArray(db.tasks))db.tasks=[];
 if(!Array.isArray(db.periods)||!db.periods.length)db.periods=[{id:'p-2026-10-19',start:FIRST,days:7,name:'Тиждень 1'}];
@@ -443,6 +509,7 @@ function magicEvents(){
 
 let ui={idealDate:nowDate(),idealShowExtras:false,idealView:'min',idealEdit:null,idealZoneEdit:false,tab:'menu',date:nowDate()<FIRST?FIRST:nowDate(),mealEdit:null,draft:null,taskEdit:null,periodId:null,agenda:nowDate()<FIRST?FIRST:nowDate(),taskMode:'period',habitDate:nowDate(),timerOpen:false,profile:'me',weightView:'overview'};
 ui.selfCareOpen=false;ui.selfPhraseIndex=0;ui.selfShowHistory=false;ui.selfPauseOpen=false;
+ui.habitView='week';ui.habitGroup='Усі';ui.habitEditOpen=false;ui.habitEditId=null;ui.habitShowHidden=false;
 ui.childAge='toddler';ui.childDate=nowDate();ui.childFilter='Усі';ui.childSearch='';ui.childExpanded=null;ui.childAdd=false;ui.recipeOpen=false;ui.recipeKind='all';ui.recipeSearch='';ui.recipeSelected=null;ui.recipeSlot='b';ui.recipeServings=4;
 function guessIngredients(name){let t=String(name||'').toLowerCase(),out=[];const seen=new Set();const add=it=>{const n=it.name.toLowerCase();if(!seen.has(n)){seen.add(n);out.push({...it})}};for(const r of FOOD_RULES){if(r.name==='риба'&&/хек|форел|тунц/.test(t))continue;if(r.keys.some(k=>t.includes(k)))add({name:r.name,qty:r.qty,unit:r.unit,cat:r.cat})}for(const r of EXTRA_RULES)if(r.keys.some(k=>t.includes(k)))r.items.forEach(add);return out}
 function meal(d,k){const shift=Math.round((dateD(d)-dateD(db.menuStartDate||FIRST))/86400000);const base=baseDays[advance(FIRST,shift)];const original={title:base?.[k]||'',time:MEALS.find(m=>m[0]===k)?.[2]||'12:00',ingredients:base?.ingredients?.[k]||[]};let override=db.mealEdits[d]?.[k];return override?{...original,...override,ingredients:Array.isArray(override.ingredients)?override.ingredients:original.ingredients}:original}
@@ -679,7 +746,18 @@ function agendaView(p){if(ui.agenda<p.start||ui.agenda>periodEnd(p))ui.agenda=p.
 function timerUI(){if(!db.timer||!ui.timerOpen)return '';let remaining=db.timer.endsAt?Math.max(0,Math.ceil((db.timer.endsAt-Date.now())/1000)):db.timer.remaining;return `<div class="card focus"><div class="small">Таймер справи</div><div class="big timer-digit" id="timerDigit">${formatSeconds(remaining)}</div><div class="small">${esc(db.timer.title)}</div><div class="toolbar"><button class="btn sec" data-action="timerToggle">${db.timer.endsAt?'Пауза':'Продовжити'}</button><button class="btn line" data-action="timerStop">Закрити таймер</button></div></div>`}
 function formatSeconds(s){const n=Math.max(0,Math.ceil(s||0));return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
 function showTimerLive(){const el=$('#timerDigit');if(!el||!db.timer)return;const remaining=db.timer.endsAt?Math.max(0,Math.ceil((db.timer.endsAt-Date.now())/1000)):db.timer.remaining;el.textContent=formatSeconds(remaining);if(!remaining&&db.timer.endsAt){db.timer.endsAt=null;db.timer.remaining=0;save()}}
-function pageHabits(){const d=ui.habitDate;const e=db.habits[d]||{};return `<h2>Звички</h2><div class="card hero"><div class="small">Поточна серія</div><div class="big">${liveStreak()} днів</div><div class="small">Достатньо хоча б однієї звички за день</div></div><div class="card"><div class="input-group"><label>Дата</label><input class="field" type="date" id="habitDate" value="${esc(d)}"></div>${HABITS.map(([id,title,desc])=>`<div class="check"><input type="checkbox" id="habit-${id}" data-habit="${id}" ${e[id]?'checked':''}><label for="habit-${id}" class="${e[id]?'done':''}"><b>${title}</b><span class="small" style="display:block">${desc}</span></label></div>`).join('')}</div><div class="grid2">${HABITS.map(([id,title])=>`<div class="stat"><span class="small">${title}</span><b>${streak(id)} дн.</b><span class="small">Найдовша серія</span></div>`).join('')}</div><div class="hint">Дні відпочинку та відновлення необхідні. Не тренуйтеся через біль у стопі або суглобах.</div>`}
+function pageHabits(){
+ const dates=habitWindow(),shown=habitItems().filter(x=>ui.habitGroup==='Усі'||x.group===ui.habitGroup),all=habitAll();const num=shown.reduce((n,x)=>n+habitStats(x.id,dates),0),periodStart=dates[0],periodEnd=dates.at(-1);const hidden=all.filter(x=>x.hidden);
+ return `<h2>Мої звички</h2><div class="card hero habit-hero"><div class="habit-header"><div><div class="small">Мій кольоровий трекер</div><h3 style="margin:3px 0">Кожен квадратик — зроблена справа</h3></div><span class="tag">${ui.habitView==='month'?'Місяць':'Тиждень'}</span></div><div class="habit-summary"><span><b>${num}</b> позначок</span><span><b>${shown.length}</b> напрямів</span></div><p class="small" style="margin:10px 0 0">Наукові справи не потрібно виконувати щодня. Відмічайте реальний поступ без тиску й оцінок.</p></div>
+ <div class="card"><div class="toolbar between"><div class="habit-switch"><button class="btn sm ${ui.habitView==='week'?'active':'sec'}" data-action="habitView" data-view="week">7 днів</button><button class="btn sm ${ui.habitView==='month'?'active':'sec'}" data-action="habitView" data-view="month">Місяць</button></div><button class="btn sm" data-action="habitNew">+ Звичка</button></div>
+ <div class="toolbar between"><div class="habit-switch"><button class="btn line sm" aria-label="Попередній період" data-action="habitPrev">‹</button><strong>${ui.habitView==='month'?dateD(ui.habitDate).toLocaleDateString('uk-UA',{month:'long',year:'numeric'}):fmt(periodStart)+' — '+fmt(periodEnd)}</strong><button class="btn line sm" aria-label="Наступний період" data-action="habitNext">›</button></div><button class="btn sec sm" data-action="habitToday">Сьогодні</button></div>
+ <div class="habit-filter-row">${HABIT_GROUPS.map(group=>`<button class="btn ${ui.habitGroup===group?'active':'sec'} sm" data-habit-group="${esc(group)}">${esc(group)}</button>`).join('')}</div>
+ <div id="habitScroll" class="habit-scroll" role="region" tabindex="0" aria-label="Таблиця відміток за днями, гортайте горизонтально"><table class="habit-table"><thead><tr><th scope="col" class="habit-name">Звичка</th>${dates.map(d=>`<th scope="col" class="${d===nowDate()?'today':''}"><span>${habitLabel(d)}</span><span class="num" style="display:block">${Number(d.slice(-2))}</span></th>`).join('')}<th scope="col">Σ</th></tr></thead><tbody>${shown.map(item=>`<tr><td class="habit-name"><button type="button" data-habit-edit="${esc(item.id)}" title="Редагувати звичку" style="border:0;background:transparent;padding:0;text-align:left;display:flex;align-items:center;gap:6px;color:inherit;width:100%"><span class="habit-palette" style="background:${item.color}"></span><span><span class="habit-title">${esc(item.title)}</span><span class="habit-sub">${esc(item.note||item.group)}</span></span></button></td>${dates.map(d=>`<td class="habit-cell ${d===nowDate()?'today':''}"><button type="button" class="habit-square ${d>nowDate()?'future':''}" style="--habit-ink:${item.color}" data-habit-square="${esc(item.id)}" data-day="${d}" data-on="${!!db.habits[d]?.[item.id]}" aria-pressed="${!!db.habits[d]?.[item.id]}" aria-label="${esc(item.title)} — ${fmtFull(d)}: ${db.habits[d]?.[item.id]?'виконано':'не виконано'}" ${d>nowDate()?'disabled':''}>✓</button></td>`).join('')}<td style="min-width:34px;font-weight:800">${habitStats(item.id,dates)}</td></tr>`).join('')||`<tr><td colspan="${dates.length+2}" style="padding:24px">Немає звичок у цій категорії. Додайте свою або виберіть іншу категорію.</td></tr>`}</tbody></table></div>
+ <div class="habit-legend"><span class="habit-square" style="--habit-ink:#845B8F;width:17px;height:17px;min-width:17px;min-height:17px" aria-hidden="true"></span> не виконано <span class="habit-square" data-on="true" style="--habit-ink:#845B8F;width:17px;height:17px;min-width:17px;min-height:17px" aria-hidden="true">✓</span> виконано <span style="margin-left:auto">Гортайте таблицю →</span></div>
+ ${habitForm()}
+ ${hidden.length?`<details style="margin-top:12px"><summary class="small">Приховані звички (${hidden.length})</summary>${hidden.map(x=>`<div class="row between" style="margin-top:8px"><span class="small">${esc(x.title)}</span><button class="btn sec sm" data-habit-restore="${esc(x.id)}">Повернути</button></div>`).join('')}</details>`:''}
+ </div>`;
+}
 const BODY_PARTS=[['waist','Талія'],['hips','Стегна'],['chest','Груди'],['arm','Рука'],['thigh','Стегно ноги']];
 const healthNumber=v=>{if(v===undefined||v===null||String(v).trim()==='')return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)?n:null};
 function profileScheduled(which){const h=healthProfile(which),cfg=h.schedule,list=[];const interval=Number(cfg.interval)||7;for(let i=0;i<16;i++){let v=cfg.overrides[i]||advance(cfg.start,i*interval);if(/^\d{4}-\d{2}-\d{2}$/.test(v))list.push({index:i,date:v})}return list;}
@@ -728,6 +806,19 @@ $('#app').addEventListener('click',async e=>{const b=e.target.closest('button');
  if(ui.tab==='ideal'&&selfAction(b))return;
  if(ui.tab==='ideal'&&idealActions(b))return;
  if(ui.tab==='children'&&childActions(b))return;
+ if(b.dataset.habitSquare){habitSetMark(b.dataset.habitSquare,b.dataset.day);return}
+ if(b.dataset.habitGroup){ui.habitGroup=b.dataset.habitGroup;render();return}
+ if(b.dataset.habitEdit){ui.habitEditId=b.dataset.habitEdit;ui.habitEditOpen=true;render();$('#habitTitle')?.focus();return}
+ if(b.dataset.habitRestore){habitRestore(b.dataset.habitRestore);return}
+ if(b.dataset.action==='habitView'){ui.habitView=b.dataset.view==='month'?'month':'week';render();return}
+ if(b.dataset.action==='habitPrev'){habitMove(-1);return}
+ if(b.dataset.action==='habitNext'){habitMove(1);return}
+ if(b.dataset.action==='habitToday'){ui.habitDate=nowDate();render();return}
+ if(b.dataset.action==='habitNew'){ui.habitEditId=null;ui.habitEditOpen=true;render();$('#habitTitle')?.focus();return}
+ if(b.dataset.action==='habitSave'){habitSave();return}
+ if(b.dataset.action==='habitClose'){ui.habitEditOpen=false;ui.habitEditId=null;render();return}
+ if(b.dataset.action==='habitHide'){habitHide(b.dataset.id);return}
+
  if(b.dataset.openrecipes){ui.recipeOpen=true;ui.recipeSlot=b.dataset.openrecipes;ui.recipeKind='all';ui.recipeSearch='';ui.recipeSelected=null;render();return}
  if(b.dataset.recipekind){ui.recipeKind=b.dataset.recipekind;ui.recipeSearch='';ui.recipeSelected=null;render();return}
  if(b.dataset.assignedrecipe){ui.recipeOpen=true;ui.recipeSelected=b.dataset.assignedrecipe;ui.recipeSlot=b.dataset.slot||'b';ui.recipeServings=Number(meal(ui.date,ui.recipeSlot).portions)||4;render();return}
