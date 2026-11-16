@@ -3,11 +3,11 @@ android {
     namespace 'ua.atelier.balance'
     compileSdk 35
     defaultConfig {
-        applicationId 'ua.atelier.balance'
+        applicationId 'ua.atelier.balance.easy'
         minSdk 26
         targetSdk 34
-        versionCode 6
-        versionName '0.2.0-demo.1'
+        versionCode 1
+        versionName '0.3.0-easy-demo.1'
     }
     buildTypes { release { minifyEnabled false } }
     compileOptions {
