@@ -1,0 +1,38 @@
+name: Atelier Balance Android APK
+'on':
+  push:
+    branches:
+      - atelier-balance-apk
+    paths:
+      - 'atelier-balance/**'
+      - '.github/workflows/atelier-balance-apk.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Install SDK 35
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Assemble debug APK
+        run: gradle --no-daemon -p atelier-balance assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AtelierBalance-debug-apk
+          path: atelier-balance/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
