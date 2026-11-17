@@ -1,0 +1,73 @@
+name: Publish Atelier Balance Studio Breakfast Demo 0.7
+'on':
+  push:
+    branches: [atelier-balance-apk]
+    paths:
+      - '.github/workflows/atelier-studio-breakfast-v07-release.yml'
+      - 'atelier-balance/STUDIO_BREAKFAST_RELEASE_NOTES_uk.md'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: atelier-studio-breakfast-v07-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Android SDK 35
+        shell: bash
+        run: |
+          set -e
+          if command -v sdkmanager >/dev/null 2>&1; then
+            SDKMANAGER=$(command -v sdkmanager)
+          else
+            SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)
+          fi
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+      - name: Compile Android APK
+        run: gradle --no-daemon -p atelier-balance clean assembleDebug
+      - name: Verify artifact and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s atelier-balance/app/build/outputs/apk/debug/app-debug.apk
+          cp atelier-balance/app/build/outputs/apk/debug/app-debug.apk AtelierBalance-Studio-Breakfast-demo-v0.7.0.apk
+          unzip -tq AtelierBalance-Studio-Breakfast-demo-v0.7.0.apk
+          sha256sum AtelierBalance-Studio-Breakfast-demo-v0.7.0.apk > SHA256SUMS.txt
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AtelierBalance-Studio-Breakfast-v0.7.0
+          path: |
+            AtelierBalance-Studio-Breakfast-demo-v0.7.0.apk
+            SHA256SUMS.txt
+          retention-days: 30
+      - name: Publish GitHub prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="atelier-studio-breakfast-v0.7.0-demo.1"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" AtelierBalance-Studio-Breakfast-demo-v0.7.0.apk SHA256SUMS.txt --clobber
+          else
+            gh release create "$TAG" AtelierBalance-Studio-Breakfast-demo-v0.7.0.apk SHA256SUMS.txt \
+              --title "Atelier Balance · Pearl Glass Studio — Demo 0.7" \
+              --notes-file atelier-balance/STUDIO_BREAKFAST_RELEASE_NOTES_uk.md \
+              --target "$GITHUB_SHA" --prerelease
+          fi
