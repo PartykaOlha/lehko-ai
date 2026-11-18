@@ -1,0 +1,74 @@
+name: Atelier Day · Pearl Glass Android Demo
+'on':
+  push:
+    branches:
+      - atelier-daybook
+    paths:
+      - 'day-planner/**'
+      - '.github/workflows/atelier-daybook-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: atelier-daybook-demo
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Android SDK 35
+        shell: bash
+        run: |
+          set -e
+          if command -v sdkmanager >/dev/null 2>&1; then
+            SDKMANAGER=$(command -v sdkmanager)
+          else
+            SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | head -1)
+          fi
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platforms;android-35" "build-tools;35.0.0"
+      - name: Build debug APK
+        run: gradle --no-daemon -p day-planner clean assembleDebug
+      - name: Verify APK and generate checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s day-planner/app/build/outputs/apk/debug/app-debug.apk
+          cp day-planner/app/build/outputs/apk/debug/app-debug.apk AtelierDay-PearlGlass-demo-v1.0.0.apk
+          unzip -tq AtelierDay-PearlGlass-demo-v1.0.0.apk
+          sha256sum AtelierDay-PearlGlass-demo-v1.0.0.apk > SHA256SUMS.txt
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AtelierDay-demo-v1.0.0-apk
+          path: |
+            AtelierDay-PearlGlass-demo-v1.0.0.apk
+            SHA256SUMS.txt
+          retention-days: 30
+      - name: Publish GitHub prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="atelier-day-v1.0.0-demo.1"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" AtelierDay-PearlGlass-demo-v1.0.0.apk SHA256SUMS.txt --clobber
+          else
+            gh release create "$TAG" AtelierDay-PearlGlass-demo-v1.0.0.apk SHA256SUMS.txt \
+              --title "Atelier Day · Pearl Glass — Demo 1.0" \
+              --notes-file day-planner/README.md \
+              --target "$GITHUB_SHA" --prerelease
+          fi

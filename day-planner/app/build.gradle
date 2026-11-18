@@ -1,0 +1,17 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'ua.atelier.day'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'ua.atelier.day'
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0-demo.1'
+    }
+    buildTypes { release { minifyEnabled false } }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
